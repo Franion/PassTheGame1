@@ -7,30 +7,40 @@ public class Movement : MonoBehaviour
     public Transform playerTransform;
     public Rigidbody2D rb2d;
     public float speed;
+    public float jumpPower;
     public Animator playerAnimator;
+    public GroundChecker groundChecker;
 
-    bool isRot;
-    void Start()
+    private bool isRot;
+
+    private void Start()
     {
         isRot = false;
     }
 
-    void Update() 
+    private void Update()
     {
         playerAnimator.SetFloat("Speed", Mathf.Abs(Input.GetAxis("Horizontal")));
 
-        if(Input.GetAxis("Horizontal") < 0.1)
-        {
-            playerTransform.rotation = Quaternion.Euler(0, 0, 0);
-        }else if(Input.GetAxis("Horizontal") > -0.1)
+        if (Input.GetAxis("Horizontal") > 0.01)
         {
             playerTransform.rotation = Quaternion.Euler(0, 180, 0);
         }
+        else if (Input.GetAxis("Horizontal") < -0.01)
+        {
+            playerTransform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && groundChecker.IsGrounded)
+        {
+            Vector2 jumpForce = Vector2.up * jumpPower;
+            rb2d.AddForce(jumpForce, ForceMode2D.Impulse);
+        }
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         float movX = Input.GetAxisRaw("Horizontal");
-        rb2d.velocity = new Vector2(movX, 0) * speed;
+        rb2d.velocity = new Vector2(movX * speed, rb2d.velocity.y);
     }
 }
